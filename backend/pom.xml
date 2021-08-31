@@ -14,7 +14,6 @@
     <name>sausage-store</name>
     <description>Backend for sausage-store</description>
     <properties>
-        <java.version>10</java.version>
         <sonar.projectKey>test_manual</sonar.projectKey>
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
