@@ -5,11 +5,11 @@ pipeline {
         pollSCM('H/5 * * * *') // Запускать будем автоматически по крону примерно раз в 5 минут
     }
 
-    tools {
-        maven 'maven-3.8.1' // Для сборки бэкенда нужен Maven
-        jdk 'jdk16' // И Java Developer Kit нужной версии
-        nodejs 'node-16' // А NodeJS нужен для фронта
-    }
+//    tools {
+//        maven 'maven-3.12' // Для сборки бэкенда нужен Maven
+//        jdk 'jdk1.5' // И Java Developer Kit нужной версии
+//        nodejs 'node-1.4.0' // А NodeJS нужен для фронта
+//    }
 
     stages {
         stage('Build & Test backend') {
@@ -43,7 +43,7 @@ pipeline {
         }
 	stage('Send notifications in Slack') {
             steps {
-		curl -X POST -H 'Content-type: application/json' --data '{"text":"Максим Бурунов собрал новую версию приложения."}' https://hooks.slack.com/services/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
+		sh 'curl -X POST -H \'Content-type: application/json\' --data \'{\"text\":\"Максим Бурунов собрал и задеплоил приложение на тестовый стенд.\"}\' https://hooks.slack.com/services/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'
             }
         }
     }

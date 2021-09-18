@@ -6,8 +6,8 @@ pipeline {
     }
 
     tools {
-        maven 'maven-3.8.1' // Для сборки бэкенда нужен Maven
-        jdk 'jdk16' // И Java Developer Kit нужной версии
+	maven 'maven-3.8.1' // Для сборки бэкенда нужен Maven
+        jdk 'jdk9' // И Java Developer Kit нужной версии
         nodejs 'node-16' // А NodeJS нужен для фронта
     }
 
@@ -43,7 +43,7 @@ pipeline {
         }
 	stage('Send notifications in Slack') {
             steps {
-		curl -X POST -H 'Content-type: application/json' --data '{"text":"Максим Бурунов собрал и задеплоил приложение на тестовый стенд."}' https://hooks.slack.com/services/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
+		sh 'curl -X POST -H \'Content-type: application/json\' --data \'{\"text\":\"Максим Бурунов собрал и задеплоил приложение на тестовый стенд.\"}\' https://hooks.slack.com/services/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'
             }
         }
     }
