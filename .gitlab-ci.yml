@@ -1,7 +1,7 @@
 stages:
   - build
-  - release
   - test
+  - release
 
 include:
   - template: Security/SAST.gitlab-ci.yml
