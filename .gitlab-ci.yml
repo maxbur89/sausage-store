@@ -1,6 +1,7 @@
 stages:
   - build
   - release
+  - test
 
 include:
   - template: Security/SAST.gitlab-ci.yml
@@ -44,12 +45,12 @@ upload-release: # задача с именем upload-release
         curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" -T sausage-store-0.0.1.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sausage-store/${CI_COMMIT_SHA}/" \
         # сохранение артефакта в package registry
 
-test:
-    dependencies:
-      - build
-    artifacts:
-      reports:
-        sast: gl-sast-report.json
+#test:
+#    dependencies:
+#      - build
+#    artifacts:
+#      reports:
+#        sast: gl-sast-report.json
  
             
 #notify-release:
