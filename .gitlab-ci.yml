@@ -9,79 +9,62 @@ include:
 #variables:
 #  SAST_GOSEC_LEVEL: 2
       
-build-code-job: # задача с именем build-code-job
-    stage: build # этап build 
-    script: # объявление скрипта
-      - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
-      - cd backend 
-      - mvn package # запуск сборки кода
-      - cd ../frontend 
-      - npm install # загрузка всех сторонних зависимости
-      - npm run build # запуск сборки кода
-      - cd .. 
-      - mkdir sausage-store-0.0.1 # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-      - mv backend/target/sausage-store-0.0.1-SNAPSHOT.jar sausage-store-0.0.1/sausage-store-0.0.1.jar # копирование собранного бэкенда
-      - mv frontend/dist/frontend sausage-store-0.0.1/public_html # копирование собранного фронтэнда
-    artifacts:
-      paths:
-        - sausage-store-0.0.1/public_html # сохранение собранного фронтэнда как артефакт
-        - sausage-store-0.0.1/sausage-store-0.0.1.jar # сохранение собранного бэкенда как артефакт
-      reports:
-        dotenv: CI_JOB_ID.txt # сохранение файла с переменными как артефакт
+#build-code-job: # задача с именем build-code-job
+#    stage: build # этап build 
+#    script: # объявление скрипта
+#      - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
+#      - cd backend 
+#      - mvn package # запуск сборки кода
+#      - cd ../frontend 
+#      - npm install # загрузка всех сторонних зависимости
+#      - npm run build # запуск сборки кода
+#      - cd .. 
+#      - mkdir sausage-store-0.0.1 # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
+#      - mv backend/target/sausage-store-0.0.1-SNAPSHOT.jar sausage-store-0.0.1/sausage-store-0.0.1.jar # копирование собранного бэкенда
+#      - mv frontend/dist/frontend sausage-store-0.0.1/public_html # копирование собранного фронтэнда
+#    artifacts:
+#      paths:
+#        - sausage-store-0.0.1/public_html # сохранение собранного фронтэнда как артефакт
+#        - sausage-store-0.0.1/sausage-store-0.0.1.jar # сохранение собранного бэкенда как артефакт
+#      reports:
+#        dotenv: CI_JOB_ID.txt # сохранение файла с переменными как артефакт
       
-upload-release: # задача с именем upload-release
-    stage: release # этап release
-    only: # запуск этого шага только при изменениях в директориях backend и frontend
-        changes:
-          - backend/**/*
-          - frontend/**/*
-    script: 
-      - echo "Get artifact from job ${ARTIFACT_JOB_ID}" 
-      - |
-        curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" https://gitlab.praktikum-services.ru/Stasyan/sausage-store/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download -o sausage-store-0.0.1.zip \
-        # скачивание артефакта в файл sausage-store-0.0.1.zip
-      - echo "Upload artifact to package registry" 
-      - |
-        curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" -T sausage-store-0.0.1.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sausage-store/${CI_COMMIT_SHA}/" \
-        # сохранение артефакта в package registry
+#upload-release: # задача с именем upload-release
+#    stage: release # этап release
+#    only: # запуск этого шага только при изменениях в директориях backend и frontend
+#        changes:
+#          - backend/**/*
+#          - frontend/**/*
+#    script: 
+#      - echo "Get artifact from job ${ARTIFACT_JOB_ID}" 
+#      - |
+#        curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" https://gitlab.praktikum-services.ru/Stasyan/sausage-store/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download -o sausage-store-0.0.1.zip \
+#        # скачивание артефакта в файл sausage-store-0.0.1.zip
+#      - echo "Upload artifact to package registry" 
+#      - |
+#        curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" -T sausage-store-0.0.1.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sausage-store/${CI_COMMIT_SHA}/" \
+#        # сохранение артефакта в package registry
 
 sonarqube-check-backend:
     image:
       name: sonarsource/sonar-scanner-cli:latest
       entrypoint: [""]
     variables:
-      SONAR_USER_HOME: "${CI_PROJECT_DIR}/backend/.sonar"  # Defines the location of the analysis task cache
+      SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
       GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+      SONAR_TOKEN: "423d4d097a8c2d5a4887e5c4d1ce70f76a4e3561"
+      SONAR_HOST_URL: "https://sonarqube.praktikum-services.ru/"
     cache:
       key: "${CI_JOB_NAME}"
       paths:
         - .sonar/cache
     script:
-      - sonar-scanner -Dsonar.qualitygate.wait=true
+      - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectDescription=00_МАКСИМБУРУНОВ_ФРОНТЕНД
     allow_failure: true
     only:
       - merge_requests
       - master # or the name of your main branch
       - develop
-
-#sonarqube-check-frontend:
-#    image:
-#      name: sonarsource/sonar-scanner-cli:latest
-#      entrypoint: [""]
-#    variables:
-#      SONAR_USER_HOME: "${CI_PROJECT_DIR}/frontend/.sonar"  # Defines the location of the analysis task cache
-#      GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-#    cache:
-#      key: "${CI_JOB_NAME}"
-#      paths:
-#        - .sonar/cache
-#    script:
-#      - sonar-scanner -Dsonar.qualitygate.wait=true
-#    allow_failure: true
-#    only:
-#      - merge_requests
-#      - master # or the name of your main branch
-#      - develop
 
 
 #notify-release:
