@@ -73,6 +73,8 @@ sonarqube-check-backend:
       paths:
         - .sonar/cache
     script:
+      - java --version
+      - which java
       - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=00_MAKSIMBURUNOV_BACKEND -Dsonar.sources=. -Dsonar.host.url=https://sonarqube.praktikum-services.ru -Dsonar.login=423d4d097a8c2d5a4887e5c4d1ce70f76a4e3561 -Dsonar.projectBaseDir="${CI_PROJECT_DIR}"/backend -Dsonar.java.binaries=**/* -Dsonar.language=java
     allow_failure: true
     only:
