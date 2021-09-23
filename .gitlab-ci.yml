@@ -1,6 +1,12 @@
 stages:
   - build
   - release
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
+#variables:
+#  SAST_GOSEC_LEVEL: 2
       
 build-code-job: # задача с именем build-code-job
     stage: build # этап build 
@@ -37,9 +43,17 @@ upload-release: # задача с именем upload-release
       - |
         curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" -T sausage-store-0.0.1.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sausage-store/${CI_COMMIT_SHA}/" \
         # сохранение артефакта в package registry
+
+test:
+    dependencies:
+      - build
+    artifacts:
+      reports:
+        sast: gl-sast-report.json
+ 
             
-notify-release:
-    stage: release
-    script:
-      - |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Максим Бурунов собрал и задеплоил приложение (gitlab) на тестовый стенд."}' https://hooks.slack.com/services/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
+#notify-release:
+#    stage: release
+#    script:
+#      - |
+#        curl -X POST -H 'Content-type: application/json' --data '{"text":"Максим Бурунов собрал и задеплоил приложение (gitlab) на тестовый стенд."}' https://hooks.slack.com/services/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
