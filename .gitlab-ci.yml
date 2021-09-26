@@ -86,6 +86,10 @@ sonarqube-check-backend:
 
 notify-release:
     stage: release
+    only: # запуск этого шага только при изменениях в директориях backend и frontend
+        changes:
+          - backend/**/*
+          - frontend/**/*
     script:
       - echo "Send message in Slack"
       - |
