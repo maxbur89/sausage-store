@@ -42,7 +42,7 @@ upload-release: # задача с именем upload-release
       - |
         curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" -T sausage-store-0.0.1.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sausage-store/${CI_COMMIT_SHA}/" \
         # сохранение артефакта в package registry
-    when: never
+    when: manual
 
 sonarqube-check-frontend:
     stage: test
@@ -64,7 +64,7 @@ sonarqube-check-frontend:
       - merge_requests
       - master # or the name of your main branch
       - develop
-    when: never
+    when: manual
 
 sonarqube-check-backend:
     stage: test
@@ -86,7 +86,7 @@ sonarqube-check-backend:
       - merge_requests
       - master # or the name of your main branch
       - develop
-    when: never
+    when: manual
 
 notify-release:
     stage: release
