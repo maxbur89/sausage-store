@@ -43,6 +43,7 @@ upload-release: # задача с именем upload-release
         # сохранение артефакта в package registry
 
 sonarqube-check-frontend:
+    stage: test
     image:
       name: sonarsource/sonar-scanner-cli:latest
       entrypoint: [""]
@@ -54,6 +55,7 @@ sonarqube-check-frontend:
       paths:
         - .sonar/cache
     script:
+      - echo "SonarQube test frontend for ${CI_PROJECT_DIR}"
       - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=${SONAR_PROJECTKEY_BACKEND} -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_LOGIN} -Dsonar.projectBaseDir="${CI_PROJECT_DIR}"/frontend
     allow_failure: true
     only:
@@ -62,6 +64,7 @@ sonarqube-check-frontend:
       - develop
 
 sonarqube-check-backend:
+    stage: test
     image:
       name: sonarsource/sonar-scanner-cli:latest
       entrypoint: [""]
@@ -73,6 +76,7 @@ sonarqube-check-backend:
       paths:
         - .sonar/cache
     script:
+      - echo "SonarQube test backend for ${CI_PROJECT_DIR}"
       - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=${SONAR_PROJECTKEY_BACKEND} -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_LOGIN} -Dsonar.projectBaseDir="${CI_PROJECT_DIR}"/backend -Dsonar.java.binaries=**/* -Dsonar.language=java
     allow_failure: true
     only:
@@ -80,9 +84,9 @@ sonarqube-check-backend:
       - master # or the name of your main branch
       - develop
 
-
 notify-release:
     stage: release
     script:
+      - echo "Send message in Slack"
       - |
         curl -X POST -H 'Content-type: application/json' --data '{"text":"Максим Бурунов собрал и задеплоил приложение (SonarQube) на тестовый стенд."}' https://hooks.slack.com/services/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
