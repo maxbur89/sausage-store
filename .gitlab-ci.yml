@@ -38,6 +38,8 @@ upload-release: # задача с именем upload-release
       - |
         curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" https://gitlab.praktikum-services.ru/00_burunov_m/sausage-store/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download -o sausage-store-0.0.1.zip \
         # скачивание артефакта в файл sausage-store-0.0.1.zip
+      - ls -l
+      - ls -l sausage-store-0.0.1.zip  
       - echo "Upload artifact to package registry" 
       - |
         curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" -T sausage-store-0.0.1.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sausage-store/${CI_COMMIT_SHA}/" \
