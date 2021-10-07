@@ -36,7 +36,7 @@ upload-release: # задача с именем upload-release
     script: 
       - echo "Get artifact from job ${ARTIFACT_JOB_ID}" 
       - |
-        curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" https://gitlab.praktikum-services.ru/Stasyan/sausage-store/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download -o sausage-store-0.0.1.zip \
+        curl -sSL -H "JOB-TOKEN: ${CI_JOB_TOKEN}" https://gitlab.praktikum-services.ru/00_burunov_m/sausage-store/-/jobs/${ARTIFACT_JOB_ID}/artifacts/download -o sausage-store-0.0.1.zip \
         # скачивание артефакта в файл sausage-store-0.0.1.zip
       - echo "Upload artifact to package registry" 
       - |
