@@ -31,10 +31,10 @@ build-code-job:
 
 upload-release:
     stage: release
-#    only:
-#        changes:
-#          - backend/**/*
-#          - frontend/**/*
+    only:
+        changes:
+          - backend/**/*
+          - frontend/**/*
     script: 
       - cd backend
       - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
@@ -71,7 +71,7 @@ sonarqube-check-frontend:
       - merge_requests
       - master
       - develop
-#    when: manual
+    when: manual
 
 sonarqube-check-backend:
     stage: test
@@ -101,14 +101,14 @@ sonarqube-check-backend:
       - merge_requests
       - master
       - develop
-#    when: manual
+    when: manual
 
 notify-release:
     stage: release
-#    only:
-#        changes:
-#          - backend/**/*
-#          - frontend/**/*
+    only:
+        changes:
+          - backend/**/*
+          - frontend/**/*
     script:
       - echo "Send message in Slack"
       - >
