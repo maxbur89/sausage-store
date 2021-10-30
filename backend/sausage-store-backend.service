@@ -1,0 +1,21 @@
+[Unit]
+Description=sausage-store
+After=network.target
+Requires=network.target
+
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+User=root
+
+Environment=LOG_PATH=/var/log/
+
+StandardOutput=append:/var/log/out.log
+StandardError=append:/var/log/out.log
+
+ExecStart=java -jar /home/admin/sausage-store.jar
+
+[Install]
+WantedBy=multi-user.target
