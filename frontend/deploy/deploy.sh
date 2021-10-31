@@ -4,8 +4,8 @@
 set -xe
 
 # Установка npm итд
-sudo apt update
-sudo apt install -y mc joe npm nodejs net-tools
+#sudo apt update
+#sudo apt install -y mc joe npm nodejs net-tools
 
 # Удаляем старую версию
 sudo rm -f /home/${DEV_USER}/sausage-store-frontend.tar.gz
