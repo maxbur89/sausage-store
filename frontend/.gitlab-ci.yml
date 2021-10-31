@@ -57,6 +57,7 @@ sonarqube-check-frontend:
       - develop
     when: manual
 
+
 upload-release:
     stage: release
 #    only:
