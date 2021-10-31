@@ -25,8 +25,6 @@ sudo rmdir /var/www-data/frontend/sausage-store-${VERSION}/public_html/
 sudo rmdir /var/www-data/frontend/sausage-store-${VERSION}/
 
 cd /var/www-data/frontend/
-#sudo npm install
-#sudo npm run build
 sudo npm install -g http-server
 
 # Установка и запуск sausage-store

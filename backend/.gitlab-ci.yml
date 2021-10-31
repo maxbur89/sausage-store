@@ -58,7 +58,6 @@ sonarqube-check-backend:
       - develop
     when: manual
 
-
 upload-release:
     stage: release
 #    only:
@@ -91,3 +90,4 @@ deploy:
        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
        /bin/bash -s " < ./backend/deploy.sh
+  when: manual
