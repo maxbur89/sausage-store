@@ -79,4 +79,4 @@ deploy:
         export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
         export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
         /bin/bash -s " < ./backend/deploy.sh
-   when: manual
+    when: manual
