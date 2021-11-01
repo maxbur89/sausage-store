@@ -23,6 +23,12 @@ build-code-job:
       reports:
         dotenv: CI_JOB_ID.txt # сохранение файла с переменными как артефакт
 
+sast:
+  stage: test
+  variables:
+    SAST_DEFAULT_ANALYZERS: eslint,semgrep,nodejs-scan
+    SAST_EXCLUDED_ANALYZERS: "spotbugs"
+
 sonarqube-check-frontend:
     stage: test
     image:
