@@ -93,7 +93,7 @@ deploy:
 rollback:
     stage: rollback
     before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh1
+      # устанавливаем ssh-agent для удобства аутентификации по ssh
       - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
       - eval $(ssh-agent -s)
       # сохраняем сгенеренный ранее приватный ключ для раннера
