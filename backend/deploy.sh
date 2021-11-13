@@ -14,3 +14,5 @@ sudo cp -rf /home/${DEV_USER}/sausage-store-backend.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 sudo systemctl restart sausage-store-backend
+
+sudo echo ${VERSION} >> /home/${DEV_USER}/version_backend_history
