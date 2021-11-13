@@ -11,6 +11,8 @@ set -xe
 sudo rm -f /home/${DEV_USER}/sausage-store-frontend.tar.gz
 sudo rmdir --ignore-fail-on-non-empty /var/www-data/frontend||true
 
+VERSION=`sudo tail -n 2 /home/${DEV_USER}/version_frontend_history | sudo head -n 1`
+
 # Установка артефакта
 sudo mkdir /var/www-data/||true
 sudo mkdir /var/www-data/frontend||true
