@@ -107,5 +107,5 @@ rollback:
         export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
         export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
         export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./backend/deploy.sh
+        /bin/bash -s " < ./backend/rollback.sh
     when: manual
