@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# чтобы скрипт завершался, если есть ошибки
+# чтобы скрипт завершался, если есть ошибки!
 set -xe
 
 sudo rm -f /home/${DEV_USER}/sausage-store.jar||true
