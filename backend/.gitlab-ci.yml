@@ -64,7 +64,9 @@ upload-release:
       - cd backend
       - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
       - cd ..
-
+    environment:
+        name: deploy
+        
 deploy:
     stage: deploy
     before_script:
@@ -87,6 +89,8 @@ deploy:
         export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
         /bin/bash -s " < ./backend/deploy.sh
     when: manual
+    environment:
+        name: deploy
 
 rollback:
     stage: rollback
