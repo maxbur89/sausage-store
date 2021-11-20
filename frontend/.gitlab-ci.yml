@@ -89,6 +89,8 @@ deploy:
         export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
         /bin/bash -s " < ./frontend/deploy/deploy.sh
     when: manual
+    environment:
+        name: deploy
 
 rollback:
     stage: rollback

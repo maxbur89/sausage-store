@@ -64,8 +64,6 @@ upload-release:
       - cd backend
       - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
       - cd ..
-    environment:
-        name: deploy
         
 deploy:
     stage: deploy
