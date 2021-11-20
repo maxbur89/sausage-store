@@ -113,3 +113,5 @@ rollback:
         export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
         /bin/bash -s " < ./frontend/deploy/rollback.sh
     when: manual
+    environment:
+        name: deploy
