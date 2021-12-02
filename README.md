@@ -1,3 +1,24 @@
+# Lesson 6
+
+1. тип базы single
+2. hostname rc1b-9ceyxhrz47ayyd9c.mdb.yandexcloud.net
+3. порт 6432
+4. имя/пароль sausage/your_password
+5. база sausage
+
+1. тип базы cluster
+2. hostname c-c9qelolihaitopcbigdo.rw.mdb.yandexcloud.net, c-c9qelolihaitopcbigdo.ro.mdb.yandexcloud.net 
+или rc1a-lv6jh3snk3msxxnz.mdb.yandexcloud.net, rc1b-hgc850hnrl335eqj.mdb.yandexcloud.net
+3. порт 6432
+4. имя/пароль sausage/your_password
+5. база sausage
+
+
+
+
+
+
+
 # Sausage Store
 
 ![image](https://user-images.githubusercontent.com/9394918/121517767-69db8a80-c9f8-11eb-835a-e98ca07fd995.png)
