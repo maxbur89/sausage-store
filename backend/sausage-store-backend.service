@@ -16,7 +16,10 @@ Environment=LOG_PATH=/var/log/
 StandardOutput=append:/var/log/out.log
 StandardError=append:/var/log/out.log
 
-ExecStart=java -jar /home/admin/sausage-store.jar
+ExecStart=java -jar /home/admin/sausage-store.jar \
+            --spring.datasource.url=jdbc:postgresql://rc1b-xr7x7a9udzq5zzwi.mdb.yandexcloud.net:6432/sausage \
+            --spring.datasource.username=sausage \
+            --spring.datasource.password=your_password
 
 [Install]
 WantedBy=multi-user.target
