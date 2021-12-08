@@ -20,3 +20,8 @@ create table product
     picture_url varchar(255),
     price double precision
 );
+
+alter table product alter COLUMN name type varchar (20);
+
+alter table product alter COLUMN picture_url type varchar (10);
+
