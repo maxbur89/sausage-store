@@ -3,7 +3,6 @@ create table order_product
     quantity integer not null,
     order_id bigint not null,
     product_id bigint not null
-
 );
 
 create table orders
@@ -21,7 +20,4 @@ create table product
     price double precision
 );
 
-alter table product alter COLUMN name type varchar (20);
-
-alter table product alter COLUMN picture_url type varchar (10);
 
