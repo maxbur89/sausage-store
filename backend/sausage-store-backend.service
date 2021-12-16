@@ -17,7 +17,7 @@ StandardOutput=append:/var/log/out.log
 StandardError=append:/var/log/out.log
 
 ExecStart=java -jar /home/admin/sausage-store.jar \
-            --spring.datasource.url=jdbc:postgresql://c-c9qe9747e5iuq9h12lg9:6432/sausage \
+            --spring.datasource.url=jdbc:postgresql://c-c9qe9747e5iuq9h12lg9.rw.mdb.yandexcloud.net:6432/sausage \
             --spring.datasource.username=sausage \
             --spring.datasource.password=your_password
 
