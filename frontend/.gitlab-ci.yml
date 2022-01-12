@@ -22,9 +22,9 @@ build-code-job:
       - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
       - cd frontend
       - docker build -t sausage-store-frontend:latest .
-      - cd ..
-      - mkdir sausage-store-${VERSION} # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-      - mv frontend/dist/frontend sausage-store-${VERSION}/public_html # копирование собранного фронтэнда
+#      - cd ..
+#      - mkdir sausage-store-${VERSION} # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
+#      - mv frontend/dist/frontend sausage-store-${VERSION}/public_html # копирование собранного фронтэнда
     artifacts:
       paths:
         - sausage-store-${VERSION}/public_html # сохранение собранного фронтэнда как артефакт
