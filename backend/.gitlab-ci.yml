@@ -22,6 +22,8 @@ build-code-job:
         - sausage-store-${VERSION}/sausage-store-${VERSION}.jar # сохранение собранного бэкенда как артефакт
       reports:
         dotenv: CI_JOB_ID.txt # сохранение файла с переменными как артефакт
+    tags:
+      - docker
 
 sast:
   stage: test
