@@ -13,10 +13,7 @@ build-code-job:
     script:
       - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
       - cd backend 
-      - mvn package -Dversion.application=${VERSION} # запуск сборки кода
-      - cd ..
-      - mkdir sausage-store-${VERSION} # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-      - mv backend/target/sausage-store-${VERSION}.jar sausage-store-${VERSION}/sausage-store-${VERSION}.jar # копирование собранного бэкенда
+      - docker build --build-arg APP_VERSION=${VERSION} -t sausage-store-backend:latest .
     artifacts:
       paths:
         - sausage-store-${VERSION}/sausage-store-${VERSION}.jar # сохранение собранного бэкенда как артефакт
@@ -60,7 +57,15 @@ sonarqube-check-backend:
 
 upload-release:
     stage: release
-    script: 
+    script:
+    before_script:
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    script:
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
+      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
+                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+      
       - cd backend
       - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
       - cd ..

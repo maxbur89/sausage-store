@@ -13,8 +13,7 @@ build-code-job:
     script:
       - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
       - cd frontend
-      - npm install # загрузка всех сторонних зависимости
-      - npm run build # запуск сборки кода
+      - docker build -t sausage-store-frontend:latest .
       - cd ..
       - mkdir sausage-store-${VERSION} # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
       - mv frontend/dist/frontend sausage-store-${VERSION}/public_html # копирование собранного фронтэнда
@@ -59,7 +58,14 @@ sonarqube-check-frontend:
 
 upload-release:
     stage: release
-    script: 
+    before_script:
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    script:
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
+      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
+                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+      
       - tar czvf sausage-store-frontend-${VERSION}.tar.gz sausage-store-${VERSION}/public_html
       - >
         curl -v -u "${NEXUS_REPO_USER}:${NEXUS_REPO_PASS}"
