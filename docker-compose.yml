@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+ frontend:
+  build: ./frontend
+  image: 'sausage-store-frontend'
+  restart: always
+  container_name: sausage-store-frontend
+
+  ports:
+    - '80:80'
+
+ backend:
+  build: ./backend
+  image: 'sausage-store-backend'
+  restart: always
+  container_name: sausage-store-backend
+
+  ports:
+    - '8080:8080'
