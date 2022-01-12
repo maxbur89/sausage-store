@@ -10,7 +10,7 @@ include:
 
 build-code-job:
     stage: build
-    image: docker:stable
+    image: docker:stable-dind
     variables:
         DOCKER_HOST: tcp://docker:2376
 #        DOCKER_TLS_CERTDIR: "/certs"
