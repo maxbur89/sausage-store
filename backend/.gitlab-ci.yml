@@ -65,6 +65,14 @@ sonarqube-check-backend:
 
 upload-release:
     stage: release
+    image: docker:stable-dind
+    variables:
+        DOCKER_HOST: tcp://docker:2376
+        DOCKER_TLS_CERTDIR: "/certs"
+        DOCKER_TLS_VERIFY: 1
+        DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    services:
+      - docker:dind
     script:
     before_script:
       - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
