@@ -11,6 +11,8 @@ include:
 build-code-job:
     stage: build
     image: docker:stable
+    services:
+      - docker:dind
     script:
       - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
       - cd backend 
