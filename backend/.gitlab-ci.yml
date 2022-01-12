@@ -69,6 +69,8 @@ upload-release:
       - cd backend
       - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
       - cd ..
+    tags:
+      - docker
         
 deploy:
     stage: deploy
