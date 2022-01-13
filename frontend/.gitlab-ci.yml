@@ -24,6 +24,7 @@ build-code-job:
       - cd frontend
       - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG} .
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
+    when: manual
 
 sast:
   stage: test
@@ -57,6 +58,7 @@ sonarqube-check-frontend:
       - merge_requests
       - master
       - develop
+    when: manual
 
 upload-release:
     stage: release
@@ -75,6 +77,7 @@ upload-release:
       - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
                    ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
+    when: manual    
     
 deploy:
     stage: deploy
@@ -89,14 +92,11 @@ deploy:
       - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
     script:
-      - scp ./frontend/deploy/sausage-store-frontend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
+      - scp -r ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
         export "DEV_HOST=${DEV_HOST}";
         export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
         /bin/bash -s " < ./frontend/deploy/deploy.sh
     when: manual
     environment:

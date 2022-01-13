@@ -24,6 +24,7 @@ build-code-job:
       - cd backend 
       - docker build --build-arg APP_VERSION=${VERSION} -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG} .
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
+    when: manual
 
 sast:
   stage: test
@@ -59,6 +60,7 @@ sonarqube-check-backend:
       - merge_requests
       - master
       - develop
+    when: manual
 
 upload-release:
     stage: release
@@ -78,10 +80,7 @@ upload-release:
       - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
                    ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
-      
-#      - cd backend
-#      - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
-#      - cd ..
+    when: manual      
         
 deploy:
     stage: deploy

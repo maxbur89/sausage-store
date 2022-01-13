@@ -1,0 +1,18 @@
+[Unit]
+Description=sausage-store
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+User=root
+
+Environment=LOG_PATH=/var/log/
+
+ExecStart=docker-compose --project-directory /home/admin/ up -d
+ExecStop=docker-compose --project-directory /home/admin/ stop
+
+[Install]
+WantedBy=multi-user.target
