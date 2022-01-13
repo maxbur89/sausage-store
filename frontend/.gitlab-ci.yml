@@ -71,7 +71,7 @@ upload-release:
     before_script:
       - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
-      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
+      - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
       - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
                    ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
