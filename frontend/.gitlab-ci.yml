@@ -78,7 +78,7 @@ upload-release:
                    ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
     when: manual    
-#    
+    
 deploy:
     stage: deploy
     before_script:
