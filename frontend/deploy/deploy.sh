@@ -4,6 +4,7 @@
 set -xe
 
 # Скачиваем артефакт
+sudo docker login -u reg_user -p A1FFXxAmQwnxnUn418tq https://gitlab.praktikum-services.ru:5050/
 sudo docker-compose --project-directory /home/admin/ pull
 
 # Установка и запуск sausage-store
