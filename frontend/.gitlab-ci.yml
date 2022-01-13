@@ -101,7 +101,7 @@ deploy:
     when: manual
     environment:
         name: deploy
-
+#
 rollback:
     stage: rollback
     before_script:

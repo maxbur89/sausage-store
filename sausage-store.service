@@ -1,18 +1,23 @@
 [Unit]
 Description=sausage-store
-After=network.target
-Requires=network.target
+Requires=docker.service
+After=docker.service
 
 [Service]
-Type=simple
 Restart=always
 RestartSec=2
 User=root
 
-Environment=LOG_PATH=/var/log/
+WorkingDirectory=/home/admin/
 
-ExecStart=docker-compose --project-directory /home/admin/ up -d
-ExecStop=docker-compose --project-directory /home/admin/ stop
+# Remove old containers, network and volumes
+ExecStartPre=/usr/bin/docker-compose down -v
+
+# Compose up
+ExecStart=/usr/bin/docker-compose up
+
+# Compose down, remove containers
+ExecStop=/usr/bin/docker-compose down
 
 [Install]
 WantedBy=multi-user.target

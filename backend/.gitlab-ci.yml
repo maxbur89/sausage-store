@@ -31,7 +31,7 @@ build-code-job:
 #  variables:
 #    SAST_DEFAULT_ANALYZERS: eslint,semgrep,spotbugs
 #    SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
-#
+
 sonarqube-check-backend:
     stage: test
     image:
