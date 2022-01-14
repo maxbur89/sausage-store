@@ -2,8 +2,6 @@ FROM maven:3.8.3-openjdk-16
 
 ARG APP_VERSION
 
-USER admin
-
 COPY ./src /backend/src
 COPY *.xml /backend/
 
