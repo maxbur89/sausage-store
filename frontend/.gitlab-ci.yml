@@ -98,7 +98,7 @@ deploy:
         export "DEV_USER=${DEV_USER}";
         export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN"}";
         export "REGISTRY_USER=${REGISTRY_USER"}";
-        /bin/bash -s " < ./frontend/deploy/deploy.sh
+        /bin/bash -s " < ./frontend/deploy.sh
     when: manual
     environment:
         name: deploy

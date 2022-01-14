@@ -12,3 +12,4 @@ sudo cp -rf /home/${DEV_USER}/sausage-store.service /etc/systemd/system/sausage-
 sudo systemctl daemon-reload
 sudo systemctl restart sausage-store
 
+sudo rm /home/${DEV_USER}/sausage-store.service /home/${DEV_USER}/docker-compose.yml
