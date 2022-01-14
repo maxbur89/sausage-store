@@ -1,6 +1,8 @@
 FROM maven:3.8.3-openjdk-16
 
-ARG APP_VERSION=1.0.0-def
+ARG APP_VERSION
+
+USER admin
 
 COPY ./src /backend/src
 COPY *.xml /backend/
@@ -23,7 +25,6 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             --spring.data.mongodb.uri=mongodb://sausage:your_password@rc1a-yyq5hcvv7rfjmbaz.mdb.yandexcloud.net:27018/sausage?tls=true" \
             > /backend/sausage-store/run_script.sh && chmod +x /backend/sausage-store/run_script.sh
 
-ENTRYPOINT /backend/sausage-store/run_script.sh
+EXPOSE 8080
 
-# docker build --build-arg APP_VERSION=1.0.0-def -t sausage-store-backend:latest .
-# docker run sausage-store-backend
+ENTRYPOINT /backend/sausage-store/run_script.sh

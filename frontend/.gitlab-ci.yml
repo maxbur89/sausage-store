@@ -3,7 +3,6 @@ stages:
     - test
     - release
     - deploy
-    - rollback
 
 include:
     - template: Security/SAST.gitlab-ci.yml
@@ -24,6 +23,8 @@ build-code-job:
       - cd frontend
       - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG} .
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
+    after_script:
+      - docker logout ${CI_REGISTRY}
 
 sast:
   stage: test
@@ -75,6 +76,8 @@ upload-release:
       - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
                    ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
+    after_script:
+      - docker logout ${CI_REGISTRY}
     
 deploy:
     stage: deploy
@@ -92,34 +95,10 @@ deploy:
       - scp -r ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
-        export "DEV_HOST=${DEV_HOST}";
         export "DEV_USER=${DEV_USER}";
+        export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN"}";
+        export "REGISTRY_USER=${REGISTRY_USER"}";
         /bin/bash -s " < ./frontend/deploy/deploy.sh
     when: manual
     environment:
         name: deploy
-
-rollback:
-    stage: rollback
-    before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh
-      - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-      - eval $(ssh-agent -s)
-      # сохраняем сгенеренный ранее приватный ключ для раннера
-      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-      - chmod 644 ~/.ssh/known_hosts
-    script:
-      - scp ./backend/sausage-store-backend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
-      - ssh ${DEV_USER}@${DEV_HOST}
-        "export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./frontend/deploy/rollback.sh
-    when: manual
-    environment:
-        name: deploy
-#

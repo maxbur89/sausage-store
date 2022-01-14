@@ -2,8 +2,6 @@ stages:
     - build
     - test
     - release
-    - deploy
-    - rollback
 
 include:
     - template: Security/SAST.gitlab-ci.yml
@@ -78,53 +76,5 @@ upload-release:
       - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
                    ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
-        
-deploy:
-    stage: deploy
-    before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh
-      - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-      - eval $(ssh-agent -s)
-      # сохраняем сгенеренный ранее приватный ключ для раннера
-      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-      - chmod 644 ~/.ssh/known_hosts
-    script:
-      - scp ./backend/sausage-store-backend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
-      - ssh ${DEV_USER}@${DEV_HOST}
-        "export "VERSION=${VERSION}";
-        export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./backend/deploy.sh
-    when: manual
-    environment:
-        name: deploy
-
-rollback:
-    stage: rollback
-    before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh1
-      - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-      - eval $(ssh-agent -s)
-      # сохраняем сгенеренный ранее приватный ключ для раннера
-      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-      - chmod 644 ~/.ssh/known_hosts
-    script:
-      - scp ./backend/sausage-store-backend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
-      - ssh ${DEV_USER}@${DEV_HOST}
-        "export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./backend/rollback.sh
-    when: manual
-    environment:
-        name: deploy
-#
+    after_script:
+      - docker logout ${CI_REGISTRY}

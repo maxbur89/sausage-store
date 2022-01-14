@@ -4,7 +4,7 @@
 set -xe
 
 # Скачиваем артефакт
-sudo docker login -u reg_user -p A1FFXxAmQwnxnUn418tq https://gitlab.praktikum-services.ru:5050/
+sudo docker login -u ${REGISTRY_USER} -p ${REGISTRY_ACCESS_TOKEN} https://gitlab.praktikum-services.ru:5050/
 sudo docker-compose --project-directory /home/admin/ pull
 
 # Установка и запуск sausage-store
@@ -12,4 +12,3 @@ sudo cp -rf /home/${DEV_USER}/sausage-store.service /etc/systemd/system/sausage-
 sudo systemctl daemon-reload
 sudo systemctl restart sausage-store
 
-sudo echo ${VERSION} >> /home/${DEV_USER}/version_frontend_history
