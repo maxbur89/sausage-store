@@ -96,8 +96,8 @@ deploy:
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
         export "DEV_USER=${DEV_USER}";
-        export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN"}";
-        export "REGISTRY_USER=${REGISTRY_USER"}";
+        export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN}";
+        export "REGISTRY_USER=${REGISTRY_USER}";
         /bin/bash -s " < ./frontend/deploy.sh
     when: manual
     environment:
