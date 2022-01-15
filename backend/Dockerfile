@@ -32,7 +32,8 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
 
 EXPOSE 8080
 
-RUN useradd --uid 1001 --gid 1002 admin
+RUN groupadd --gid 1002 admin \
+    && useradd --uid 1001 --gid 1002 admin
 
 USER admin
 
