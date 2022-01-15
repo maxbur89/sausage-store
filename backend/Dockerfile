@@ -15,6 +15,8 @@ RUN mkdir /backend/sausage-store
 
 FROM maven:3.8.3-openjdk-16
 
+ARG APP_VERSION
+
 # копирование собранного бэкенда
 WORKDIR /backend
 RUN mkdir /backend/sausage-store
