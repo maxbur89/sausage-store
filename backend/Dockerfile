@@ -29,7 +29,7 @@ COPY --from=builder /backend/*.xml /backend/
 COPY --from=builder /backend/src /backend/src
 
 RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
-            --spring.datasource.url=jdbc:postgresql://c-c9qe9747e5iuq9h12lg9.rw.mdb.yandexcloud.net:6432/sausage \
+            --spring.datasource.url=\$DATA_SOURCE_CONNECT \
             --spring.datasource.username=\$DATA_SOURCE_NAME \
             --spring.datasource.password=\$DATA_SOURCE_PASS \
             --spring.data.mongodb.uri=\$MONGO_CONNECT" \
