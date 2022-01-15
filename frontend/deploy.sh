@@ -12,4 +12,5 @@ sudo cp -rf /home/${DEV_USER}/sausage-store.service /etc/systemd/system/sausage-
 sudo systemctl daemon-reload
 sudo systemctl restart sausage-store
 
+# После установки удаляем данный файл
 sudo rm /home/${DEV_USER}/sausage-store.service
