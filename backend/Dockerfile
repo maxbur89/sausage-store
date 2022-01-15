@@ -26,6 +26,7 @@ RUN mkdir /backend/sausage-store
 
 COPY --from=builder /backend/target/sausage-store-$APP_VERSION.jar /backend/sausage-store/sausage-store-$APP_VERSION.jar
 COPY --from=builder /backend/*.xml /backend/
+COPY --from=builder /backend/src /backend/src
 
 RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             --spring.datasource.url=\$DATA_SOURCE_CONNECT \
