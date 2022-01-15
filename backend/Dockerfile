@@ -25,4 +25,8 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
 
 EXPOSE 8080
 
+RUN useradd admin
+
+USER admin
+
 ENTRYPOINT /backend/sausage-store/run_script.sh

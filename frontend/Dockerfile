@@ -6,4 +6,8 @@ RUN npm install
 RUN npm install -g http-server
 RUN npm run build
 EXPOSE 80
+
+CMD useradd admin
+USER admin
+
 ENTRYPOINT ["http-server", "dist/frontend/", "-p", "80", "--proxy", "http://sausage-store-backend:8080"]
