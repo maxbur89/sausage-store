@@ -14,8 +14,7 @@ COPY --from=builder /usr/src/app/dist/frontend /usr/src/app/dist/frontend
 
 RUN npm install -g http-server
 
-#RUN groupadd --gid 1002 admin \
-#    && useradd --uid 1001 --gid 1002 admin
+RUN adduser -D admin -u 1001    
 
 #USER admin
 
