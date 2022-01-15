@@ -15,10 +15,10 @@ services:
   restart: always
   container_name: sausage-store-backend
   environment:
-    - DATA_SOURCE_CONNECT=jdbc:postgresql://c-c9qe9747e5iuq9h12lg9.rw.mdb.yandexcloud.net:6432/sausage
-    - DATA_SOURCE_NAME=sausage
-    - DATA_SOURCE_PASS=your_password
-    - MONGO_CONNECT=mongodb://sausage:your_password@rc1a-yyq5hcvv7rfjmbaz.mdb.yandexcloud.net:27018/sausage?tls=true
+    - DATA_SOURCE_CONNECT="jdbc:postgresql://c-c9qe9747e5iuq9h12lg9.rw.mdb.yandexcloud.net:6432/sausage"
+    - DATA_SOURCE_NAME="sausage"
+    - DATA_SOURCE_PASS="your_password"
+    - MONGO_CONNECT="mongodb://sausage:your_password@rc1a-yyq5hcvv7rfjmbaz.mdb.yandexcloud.net:27018/sausage?tls=true"
   networks:
     - net-sausage-store
 
