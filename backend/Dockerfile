@@ -2,16 +2,19 @@ FROM maven:3.8.3-openjdk-16 AS builder
 
 ARG APP_VERSION
 
+WORKDIR /backend
+
 COPY ./src /backend/src
 COPY *.xml /backend/
-
-WORKDIR /backend
 
 # запуск сборки кода
 RUN mvn package -Dversion.application=$APP_VERSION
 
 # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
 RUN mkdir /backend/sausage-store
+
+
+
 
 FROM maven:3.8.3-openjdk-16
 
@@ -22,6 +25,7 @@ WORKDIR /backend
 RUN mkdir /backend/sausage-store
 
 COPY --from=builder /backend/target/sausage-store-$APP_VERSION.jar /backend/sausage-store/sausage-store-$APP_VERSION.jar
+COPY --from=builder /backend/*.xml /backend/
 
 RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             --spring.datasource.url=\$DATA_SOURCE_CONNECT \
