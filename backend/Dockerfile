@@ -8,14 +8,11 @@ COPY ./src /backend/src
 COPY *.xml /backend/
 
 # запуск сборки кода
-RUN mvn package -Dversion.application=$APP_VERSION
-
 # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-RUN mkdir /backend/sausage-store
+RUN mvn package -Dversion.application=$APP_VERSION && mkdir /backend/sausage-store
 
 
-
-
+# Multi stage
 FROM maven:3.8.3-openjdk-16-slim
 
 ARG APP_VERSION
@@ -35,11 +32,11 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             --spring.data.mongodb.uri=\$MONGO_CONNECT" \
             > /backend/sausage-store/run_script.sh && chmod +x /backend/sausage-store/run_script.sh
 
-EXPOSE 8080
-
 RUN groupadd --gid 1002 admin \
     && useradd --uid 1001 --gid 1002 admin
 
 USER admin
+
+EXPOSE 8080
 
 ENTRYPOINT /backend/sausage-store/run_script.sh
