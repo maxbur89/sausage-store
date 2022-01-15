@@ -6,7 +6,7 @@ RUN npm install
 RUN npm run build
 
 # Multi stage
-FROM 17-alpine3.14
+FROM node:17-alpine3.14
 
 WORKDIR /usr/src/app
 
