@@ -78,3 +78,4 @@ upload-release:
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
     after_script:
       - docker logout ${CI_REGISTRY}
+#
