@@ -16,7 +16,7 @@ RUN mkdir /backend/sausage-store
 
 
 
-FROM maven:3.8.3-openjdk-16
+FROM maven:3.8.3-openjdk-16-slim
 
 ARG APP_VERSION
 
