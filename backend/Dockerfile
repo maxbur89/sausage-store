@@ -30,10 +30,9 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             --spring.datasource.username=\$DATA_SOURCE_NAME \
             --spring.datasource.password=\$DATA_SOURCE_PASS \
             --spring.data.mongodb.uri=\$MONGO_CONNECT" \
-            > /backend/sausage-store/run_script.sh && chmod +x /backend/sausage-store/run_script.sh
-
-RUN groupadd --gid 1002 admin \
-    && useradd --uid 1001 --gid 1002 admin
+            > /backend/sausage-store/run_script.sh && chmod +x /backend/sausage-store/run_script.sh \
+            && groupadd --gid 1002 admin \
+            && useradd --uid 1001 --gid 1002 admin
 
 USER admin
 
