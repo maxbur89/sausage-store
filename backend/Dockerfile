@@ -8,8 +8,8 @@ COPY ./src /backend/src
 COPY *.xml /backend/
 
 # запуск сборки кода
-# создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-RUN mvn package -Dversion.application=$APP_VERSION && mkdir /backend/sausage-store
+# создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива -Dversion.application=$APP_VERSION
+RUN mvn package && mkdir /backend/sausage-store
 
 
 # Multi stage
