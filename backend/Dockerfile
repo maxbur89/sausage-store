@@ -9,7 +9,7 @@ COPY *.xml /backend/
 
 # запуск сборки кода
 # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива -Dversion.application=$APP_VERSION
-RUN mvn package && mkdir /backend/sausage-store
+RUN mvn package -Dversion.application=$APP_VERSION && mkdir /backend/sausage-store
 
 
 # Multi stage
@@ -18,7 +18,9 @@ FROM maven:3.8.3-openjdk-16-slim
 ARG APP_VERSION
 
 # копирование собранного бэкенда
-WORKDIR /backend/sausage-store
+WORKDIR /backend
+RUN mkdir /backend/sausage-store
+
 
 COPY --from=builder /backend/target/sausage-store.jar /backend/sausage-store/sausage-store.jar
 # COPY -chown=admin:admin --from=builder /backend/*.xml /backend/
