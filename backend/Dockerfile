@@ -20,7 +20,7 @@ ARG APP_VERSION
 # копирование собранного бэкенда
 WORKDIR /backend/sausage-store
 
-COPY --chown=admin:admin --from=builder /backend/target/sausage-store.jar /backend/sausage-store/sausage-store.jar
+COPY --from=builder /backend/target/sausage-store.jar /backend/sausage-store/sausage-store.jar
 # COPY -chown=admin:admin --from=builder /backend/*.xml /backend/
 # COPY -chown=admin:admin --from=builder /backend/src /backend/src
 
