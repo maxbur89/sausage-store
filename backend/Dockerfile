@@ -21,11 +21,11 @@ ARG APP_VERSION
 WORKDIR /backend
 RUN mkdir /backend/sausage-store
 
-COPY --from=builder /backend/target/sausage-store-$APP_VERSION.jar /backend/sausage-store/sausage-store-$APP_VERSION.jar
-COPY --from=builder /backend/*.xml /backend/
-COPY --from=builder /backend/src /backend/src
+COPY -chown=admin:admin --from=builder /backend/target/sausage-store.jar /backend/sausage-store/sausage-store.jar
+# COPY -chown=admin:admin --from=builder /backend/*.xml /backend/
+# COPY -chown=admin:admin --from=builder /backend/src /backend/src
 
-RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
+RUN printf "java -jar /backend/sausage-store/sausage-store.jar \
             --spring.datasource.url=\$DATA_SOURCE_CONNECT \
             --spring.datasource.username=\$DATA_SOURCE_NAME \
             --spring.datasource.password=\$DATA_SOURCE_PASS \

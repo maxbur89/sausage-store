@@ -10,7 +10,7 @@ FROM node:17-alpine3.14
 
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/dist/frontend /usr/src/app/dist/frontend
+COPY -chown=admin:admin --from=builder /usr/src/app/dist/frontend /usr/src/app/dist/frontend
 
 RUN npm install -g http-server && adduser -D admin -u 1001
 
