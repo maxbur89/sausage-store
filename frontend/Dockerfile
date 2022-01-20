@@ -1,4 +1,4 @@
-FROM node:14.17.3 AS builder
+FROM node:16.13.2-slim AS builder
 
 WORKDIR /usr/src/app
 COPY . .
@@ -6,7 +6,7 @@ COPY . .
 RUN npm install && npm run build
 
 # Multi stage
-FROM node:17-alpine3.14
+FROM node:16.13.2-alpine3.15
 
 WORKDIR /usr/src/app
 
