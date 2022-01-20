@@ -4,12 +4,12 @@ ARG APP_VERSION
 
 WORKDIR /backend
 
-COPY ./src /backend/src
-COPY *.xml /backend/
+COPY ./src ./src
+COPY *.xml ./
 
 # запуск сборки кода
 # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-RUN mvn package -Dversion.application=$APP_VERSION && mkdir /backend/sausage-store
+RUN mvn package -Dversion.application=$APP_VERSION
 
 
 # Multi stage

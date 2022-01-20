@@ -1,16 +1,33 @@
-FROM node:16.13.2-slim AS builder
+FROM alpine:3.15 AS builder
 
 WORKDIR /usr/src/app
-COPY . .
+COPY *.json ./
 
-RUN npm install && npm run build
+RUN apk add --no-cache npm==8.1.3-r0 \
+    && npm install
 
-# Multi stage
-FROM node:16.13.2-alpine3.15
+COPY ./src ./src
+
+RUN npm run build
+
+
+FROM alpine:3.15 AS dependencies
+COPY *.json .
+RUN apk add --no-cache npm==8.1.3-r0 \
+    && npm install --only=production
+
+
+
+FROM alpine:3.15
 
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/dist/frontend /usr/src/app/dist/frontend
+COPY --from=builder /usr/src/app/dist/frontend ./app/dist/frontend
+COPY --from=dependencies ./node_modules ./node_modules
+COPY package.json .
+
+RUN apk add --no-cache npm==8.1.3-r0 \
+    && npm install -g http-server@14.0.0
 
 RUN npm install -g http-server && adduser -D admin -u 1001
 
