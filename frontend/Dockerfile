@@ -12,7 +12,7 @@ RUN npm run build
 
 
 FROM alpine:3.15 AS dependencies
-COPY *.json .
+COPY *.json ./
 RUN apk add --no-cache npm==8.1.3-r0 \
     && npm install --only=production
 
