@@ -15,13 +15,17 @@ RUN apk add --no-cache npm==8.1.3-r0 \
 
 FROM alpine:3.15
 WORKDIR /usr/src/app
-RUN npm install -g http-server && adduser -D admin -u 1001
-USER admin
+
+RUN groupadd --gid 1002 admin \
+    && useradd --uid 1001 --gid 1002 admin
+
 COPY --chown=admin:admin --from=builder /usr/src/app/dist/frontend ./dist/frontend
 COPY --chown=admin:admin --from=dependencies ./node_modules ./node_modules
 COPY package.json .
 RUN apk add --no-cache npm==8.1.3-r0 \
     && npm install -g http-server@14.0.0
+
+USER admin
 
 EXPOSE 80
 ENTRYPOINT ["http-server", "dist/frontend/", "-p", "80", "--proxy", "http://sausage-store-backend:8080"]
