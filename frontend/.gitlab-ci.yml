@@ -71,6 +71,7 @@ upload-release:
     services:
       - docker:dind
     before_script:
+      - until docker info; do sleep 1; done
       - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
       - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
@@ -93,7 +94,8 @@ deploy:
       - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
     script:
-      - scp -r ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
+      - echo -e "DATA_SOURCE_CONNECT=$DATA_SOURCE_CONNECT\nDATA_SOURCE_NAME=$DATA_SOURCE_NAME\nDATA_SOURCE_PASS=$DATA_SOURCE_PASS\nMONGO_CONNECT=$MONGO_CONNECT\n" > .env_file
+      - scp -r ./.env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
         export "DEV_USER=${DEV_USER}";
