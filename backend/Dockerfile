@@ -18,8 +18,7 @@ FROM maven:3.8.3-openjdk-16-slim
 ARG APP_VERSION
 
 # копирование собранного бэкенда
-WORKDIR /backend
-RUN mkdir /backend/sausage-store
+WORKDIR /backend/sausage-store
 
 RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             --spring.datasource.url=\$DATA_SOURCE_CONNECT \
