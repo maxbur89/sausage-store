@@ -10,8 +10,8 @@ User=root
 
 WorkingDirectory=/home/admin/
 
-# Remove old containers, network and volumes
-ExecStartPre=/usr/bin/docker-compose down -v
+# Remove old containers
+ExecStartPre=/usr/bin/docker-compose down
 
 # Compose up
 ExecStart=/usr/bin/docker-compose up
