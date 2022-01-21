@@ -2,6 +2,7 @@ stages:
     - build
     - test
     - release
+    - deploy
 
 include:
     - template: Security/SAST.gitlab-ci.yml
