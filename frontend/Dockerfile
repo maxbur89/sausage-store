@@ -16,8 +16,7 @@ RUN apk add --no-cache npm==8.1.3-r0 \
 FROM alpine:3.15
 WORKDIR /usr/src/app
 
-RUN groupadd --gid 1002 admin \
-    && useradd --uid 1001 --gid 1002 admin
+RUN adduser -D admin -u 1001
 
 COPY --chown=admin:admin --from=builder /usr/src/app/dist/frontend ./dist/frontend
 COPY --chown=admin:admin --from=dependencies ./node_modules ./node_modules
