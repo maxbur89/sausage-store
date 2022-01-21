@@ -95,7 +95,7 @@ deploy:
       - chmod 644 ~/.ssh/known_hosts
     script:
       - touch ./env_file
-      - echo "DATA_SOURCE_CONNECT=$DATA_SOURCE_CONNECT \n DATA_SOURCE_NAME=$DATA_SOURCE_NAME \n DATA_SOURCE_PASS=$DATA_SOURCE_PASS 'n' MONGO_CONNECT=$MONGO_CONNECT \n" > ./env_file
+      - echo -e "DATA_SOURCE_CONNECT=$DATA_SOURCE_CONNECT \nDATA_SOURCE_NAME=$DATA_SOURCE_NAME \nDATA_SOURCE_PASS=$DATA_SOURCE_PASS 'n' \nMONGO_CONNECT=$MONGO_CONNECT \n" > ./env_file
       - scp -r ./env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
