@@ -32,7 +32,8 @@ hadolint_dockerfile:
   script:
       - curl -sSL -o /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.8.0/hadolint-Linux-x86_64
       - chmod +x /bin/hadolint
-      - /bin/hadolint frontend/Dockerfile
+      - cd frontend
+      - /bin/hadolint ./Dockerfile
 
 sast:
   stage: test
