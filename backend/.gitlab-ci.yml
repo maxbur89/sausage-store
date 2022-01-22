@@ -22,7 +22,7 @@ build-code-job:
       - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
       - cd backend
-      - docker build --build-arg APP_VERSION=${VERSION} -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG} .
+      - docker build --cache-from --build-arg APP_VERSION=${VERSION} -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG} .
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
 
 hadolint_dockerfile:
