@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
  frontend:
-  image: gitlab.praktikum-services.ru:5050/00_burunov_m/sausage-store/sausage-store-frontend:latest 
+  image: gitlab.praktikum-services.ru:5050/00_burunov_m/sausage-store/sausage-store-frontend:latest
   restart: always
   container_name: sausage-store-frontend
   networks:

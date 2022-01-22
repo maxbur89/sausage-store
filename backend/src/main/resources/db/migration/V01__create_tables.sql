@@ -19,5 +19,3 @@ create table product
     picture_url varchar(255),
     price double precision
 );
-
-

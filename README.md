@@ -7,7 +7,7 @@
 5. база sausage
 
 1. тип базы cluster
-2. hostname c-c9qelolihaitopcbigdo.rw.mdb.yandexcloud.net, c-c9qelolihaitopcbigdo.ro.mdb.yandexcloud.net 
+2. hostname c-c9qelolihaitopcbigdo.rw.mdb.yandexcloud.net, c-c9qelolihaitopcbigdo.ro.mdb.yandexcloud.net
 или rc1a-lv6jh3snk3msxxnz.mdb.yandexcloud.net, rc1b-hgc850hnrl335eqj.mdb.yandexcloud.net
 3. порт 6432
 4. имя/пароль sausage/your_password
