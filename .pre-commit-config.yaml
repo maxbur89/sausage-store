@@ -1,4 +1,8 @@
+# Установка pre-commit: pip install pre-commit
+# Установка hook в git: pre-commit install
+# Создать файл .pre-commit-config.yaml
 # pre-commit run --all-files
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
