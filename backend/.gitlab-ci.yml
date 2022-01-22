@@ -38,6 +38,7 @@ sast:
   variables:
     SAST_DEFAULT_ANALYZERS: eslint,semgrep,spotbugs
     SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
+    SECURE_LOG_LEVEL: "debug"
 
 sonarqube-check-backend:
     stage: test
