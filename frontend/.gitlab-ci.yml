@@ -27,6 +27,11 @@ build-code-job:
     after_script:
       - docker logout ${CI_REGISTRY}
 
+hadolint_dockerfile:
+  stage: test
+  script:
+      - hadolint frontend/Dockerfile
+
 sast:
   stage: test
   variables:
