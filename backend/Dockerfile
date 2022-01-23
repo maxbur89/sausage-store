@@ -20,11 +20,7 @@ ARG APP_VERSION
 # копирование собранного бэкенда
 WORKDIR /backend/sausage-store
 
-RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
-            --spring.datasource.url=\$DATA_SOURCE_CONNECT \
-            --spring.datasource.username=\$DATA_SOURCE_NAME \
-            --spring.datasource.password=\$DATA_SOURCE_PASS \
-            --spring.data.mongodb.uri=\$MONGO_CONNECT" \
+RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar" \
             > /backend/sausage-store/run_script.sh && chmod +x /backend/sausage-store/run_script.sh \
             && groupadd --gid 1002 admin \
             && useradd --uid 1001 --gid 1002 admin

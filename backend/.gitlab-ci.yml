@@ -38,7 +38,7 @@ sast:
   variables:
     SAST_DEFAULT_ANALYZERS: eslint,semgrep,spotbugs
     SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
-    SECURE_LOG_LEVEL: "debug"
+#    SECURE_LOG_LEVEL: "debug"
 
 sonarqube-check-backend:
     stage: test
@@ -103,7 +103,7 @@ deploy:
       - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
     script:
-      - echo -e "DATA_SOURCE_CONNECT=$DATA_SOURCE_CONNECT\nDATA_SOURCE_NAME=$DATA_SOURCE_NAME\nDATA_SOURCE_PASS=$DATA_SOURCE_PASS\nMONGO_CONNECT=$MONGO_CONNECT\n" > .env_file
+      - echo -e "SPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATASOURCE_PASSWORD=$DATA_SOURCE_PASS\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
       - scp -r ./.env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
