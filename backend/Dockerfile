@@ -30,7 +30,6 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar \
             && useradd --uid 1001 --gid 1002 admin
 
 COPY --chown=admin:admin --from=builder /backend/target/sausage-store-$APP_VERSION.jar /backend/sausage-store/sausage-store-$APP_VERSION.jar
-COPY --chown=admin:admin --from=builder /backend/*.xml /backend/
 
 USER admin
 
