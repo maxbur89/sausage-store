@@ -15,8 +15,6 @@ hadolint_dockerfile:
   image: hadolint/hadolint:v2.8.0-alpine
   services:
       - docker:dind
-  before_script:
-      - until docker info; do sleep 1; done
   script:
       - cd backend
       - hadolint --ignore DL3000 --ignore DL3045 --ignore SC2059 --ignore DL3025 < ./Dockerfile
