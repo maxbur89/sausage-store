@@ -17,7 +17,7 @@ hadolint_dockerfile:
       - docker:dind
   script:
       - ls -l
-      - hadolint --ignore DL3000 --ignore DL3045 < frontend/Dockerfile
+      - hadolint --ignore DL3000 --ignore DL3045 frontend/Dockerfile
 
 build-code-job:
     stage: build
