@@ -1,4 +1,5 @@
 stages:
+    - lint
     - build
     - test
     - release
@@ -6,15 +7,18 @@ stages:
 
 include:
     - template: Security/SAST.gitlab-ci.yml
+    - project: 'templates/ci'
+      file: 'DockerInDockerTemplate.yml'
+
+hadolint_dockerfile:
+  stage: lint
+  script:
+      - cd backend
+      - docker run --rm -i hadolint/hadolint < ./Dockerfile
 
 build-code-job:
     stage: build
     image: docker:stable-dind
-    variables:
-        DOCKER_HOST: tcp://docker:2376
-        DOCKER_TLS_CERTDIR: "/certs"
-        DOCKER_TLS_VERIFY: 1
-        DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
     services:
       - docker:dind
     before_script:
@@ -26,14 +30,6 @@ build-code-job:
       - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
     after_script:
       - docker logout ${CI_REGISTRY}
-
-hadolint_dockerfile:
-  stage: test
-  script:
-      - curl -sSL -o /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.8.0/hadolint-Linux-x86_64
-      - chmod +x /bin/hadolint
-      - cd frontend
-      - /bin/hadolint ./Dockerfile
 
 sast:
   stage: test
