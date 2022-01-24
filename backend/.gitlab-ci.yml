@@ -12,6 +12,9 @@ include:
 
 hadolint_dockerfile:
   stage: lint
+  image: docker:stable-dind
+  services:
+      - docker:dind
   script:
       - cd backend
       - docker run --rm -i hadolint/hadolint < ./Dockerfile
