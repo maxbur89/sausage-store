@@ -19,7 +19,7 @@ hadolint_dockerfile:
       - until docker info; do sleep 1; done
   script:
       - cd backend
-      - docker run --rm -i -v ./hadolint.yaml:.hadolint.yaml hadolint/hadolint < ./Dockerfile
+      - hadolint --ignore DL3000 --ignore DL3045 --ignore SC2059 --ignore DL3025 < ./Dockerfile
 
 build-code-job:
     stage: build
