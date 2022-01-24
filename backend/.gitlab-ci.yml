@@ -16,6 +16,7 @@ hadolint_dockerfile:
   services:
       - docker:dind
   script:
+      - ls -l
       - hadolint --ignore DL3000 --ignore DL3045 --ignore SC2059 --ignore DL3025 < backend/Dockerfile
 
 build-code-job:
