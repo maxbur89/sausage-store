@@ -15,9 +15,11 @@ hadolint_dockerfile:
   image: docker:stable-dind
   services:
       - docker:dind
+  before_script:
+      - until docker info; do sleep 1; done
   script:
       - cd backend
-      - docker run --rm -i hadolint/hadolint < ./Dockerfile
+      - docker run --rm -i -v ./hadolint.yaml:.hadolint.yaml hadolint/hadolint < ./Dockerfile
 
 build-code-job:
     stage: build
