@@ -1,28 +1,37 @@
 stages:
+    - lint
     - build
     - test
     - release
     - deploy
-    - rollback
 
 include:
     - template: Security/SAST.gitlab-ci.yml
+    - project: 'templates/ci'
+      file: 'DockerInDockerTemplate.yml'
+
+hadolint_dockerfile:
+  stage: lint
+  image: hadolint/hadolint:v2.8.0-alpine
+  services:
+      - docker:dind
+  script:
+      - hadolint --ignore DL3000 --ignore DL3045 frontend/Dockerfile
 
 build-code-job:
     stage: build
+    image: docker:stable-dind
+    services:
+      - docker:dind
+    before_script:
+      - until docker info; do sleep 1; done
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
-      - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
       - cd frontend
-      - npm install # загрузка всех сторонних зависимости
-      - npm run build # запуск сборки кода
-      - cd ..
-      - mkdir sausage-store-${VERSION} # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-      - mv frontend/dist/frontend sausage-store-${VERSION}/public_html # копирование собранного фронтэнда
-    artifacts:
-      paths:
-        - sausage-store-${VERSION}/public_html # сохранение собранного фронтэнда как артефакт
-      reports:
-        dotenv: CI_JOB_ID.txt # сохранение файла с переменными как артефакт
+      - docker build --cache-from ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG} .
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
+    after_script:
+      - docker logout ${CI_REGISTRY}
 
 sast:
   stage: test
@@ -59,12 +68,24 @@ sonarqube-check-frontend:
 
 upload-release:
     stage: release
-    script: 
-      - tar czvf sausage-store-frontend-${VERSION}.tar.gz sausage-store-${VERSION}/public_html
-      - >
-        curl -v -u "${NEXUS_REPO_USER}:${NEXUS_REPO_PASS}"
-        --upload-file sausage-store-frontend-${VERSION}.tar.gz
-        ${NEXUS_REPO_URL}/sausage-store-frontend-burunov-m/sausage-store/${VERSION}/sausage-store-frontend-${VERSION}.tar.gz
+    image: docker:stable-dind
+    variables:
+        DOCKER_HOST: tcp://docker:2376
+        DOCKER_TLS_CERTDIR: "/certs"
+        DOCKER_TLS_VERIFY: 1
+        DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    services:
+      - docker:dind
+    before_script:
+      - until docker info; do sleep 1; done
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    script:
+      - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
+      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_REF_SLUG}
+                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
+    after_script:
+      - docker logout ${CI_REGISTRY}
 
 deploy:
     stage: deploy
@@ -79,39 +100,15 @@ deploy:
       - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
     script:
-      - scp ./frontend/deploy/sausage-store-frontend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
+      - echo -e "SPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATASOURCE_PASSWORD=$DATA_SOURCE_PASS\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
+      - scp -r ./.env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
-        export "DEV_HOST=${DEV_HOST}";
         export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./frontend/deploy/deploy.sh
+        export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN}";
+        export "REGISTRY_USER=${REGISTRY_USER}";
+        /bin/bash -s " < ./frontend/deploy.sh
     when: manual
     environment:
         name: deploy
-
-rollback:
-    stage: rollback
-    before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh
-      - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-      - eval $(ssh-agent -s)
-      # сохраняем сгенеренный ранее приватный ключ для раннера
-      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-      - chmod 644 ~/.ssh/known_hosts
-    script:
-      - scp ./backend/sausage-store-backend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
-      - ssh ${DEV_USER}@${DEV_HOST}
-        "export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./frontend/deploy/rollback.sh
-    when: manual
-    environment:
-        name: deploy
+##

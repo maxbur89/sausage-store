@@ -1,33 +1,42 @@
 stages:
+    - lint
     - build
     - test
     - release
     - deploy
-    - rollback
 
 include:
     - template: Security/SAST.gitlab-ci.yml
+    - project: 'templates/ci'
+      file: 'DockerInDockerTemplate.yml'
+
+hadolint_dockerfile:
+  stage: lint
+  image: hadolint/hadolint:v2.8.0-alpine
+  services:
+      - docker:dind
+  script:
+      - hadolint --ignore DL3000 --ignore DL3045 --ignore SC2059 --ignore DL3025 backend/Dockerfile
 
 build-code-job:
     stage: build
+    image: docker:stable-dind
+    services:
+      - docker:dind
+    before_script:
+      - until docker info; do sleep 1; done
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
-      - echo "ARTIFACT_JOB_ID=${CI_JOB_ID}" > CI_JOB_ID.txt  # сохранение номера задачи в файл, чтобы в дальнейшем использовать для копирования артефакта  
-      - cd backend 
-      - mvn package -Dversion.application=${VERSION} # запуск сборки кода
-      - cd ..
-      - mkdir sausage-store-${VERSION} # создание директории, в которую копируются артефакты. Это нужно для организации удобной структуры архива
-      - mv backend/target/sausage-store-${VERSION}.jar sausage-store-${VERSION}/sausage-store-${VERSION}.jar # копирование собранного бэкенда
-    artifacts:
-      paths:
-        - sausage-store-${VERSION}/sausage-store-${VERSION}.jar # сохранение собранного бэкенда как артефакт
-      reports:
-        dotenv: CI_JOB_ID.txt # сохранение файла с переменными как артефакт
+      - cd backend
+      - docker build --cache-from ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest --build-arg APP_VERSION=${VERSION} -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG} .
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
 
 sast:
   stage: test
   variables:
     SAST_DEFAULT_ANALYZERS: eslint,semgrep,spotbugs
     SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
+#    SECURE_LOG_LEVEL: "debug"
 
 sonarqube-check-backend:
     stage: test
@@ -60,15 +69,29 @@ sonarqube-check-backend:
 
 upload-release:
     stage: release
-    script: 
-      - cd backend
-      - mvn -s settings.xml deploy -DskipTests -Dversion.application=${VERSION}
-      - cd ..
-        
+    image: docker:stable-dind
+    variables:
+        DOCKER_HOST: tcp://docker:2376
+        DOCKER_TLS_CERTDIR: "/certs"
+        DOCKER_TLS_VERIFY: 1
+        DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    services:
+      - docker:dind
+    before_script:
+      - until docker info; do sleep 1; done
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    script:
+      - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
+      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:${CI_COMMIT_REF_SLUG}
+                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend:latest
+    after_script:
+      - docker logout ${CI_REGISTRY}
+
 deploy:
     stage: deploy
     before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh
+      # устанавливаем ssh-agent для удобства аутентификации по ssh (ssh-agent)
       - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
       - eval $(ssh-agent -s)
       # сохраняем сгенеренный ранее приватный ключ для раннера
@@ -78,38 +101,15 @@ deploy:
       - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
     script:
-      - scp ./backend/sausage-store-backend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
+      - echo -e "SPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATASOURCE_PASSWORD=$DATA_SOURCE_PASS\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
+      - scp -r ./.env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
         export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./backend/deploy.sh
+        export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN}";
+        export "REGISTRY_USER=${REGISTRY_USER}";
+        /bin/bash -s " < ./frontend/deploy.sh
     when: manual
     environment:
         name: deploy
-
-rollback:
-    stage: rollback
-    before_script:
-      # устанавливаем ssh-agent для удобства аутентификации по ssh1
-      - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-      - eval $(ssh-agent -s)
-      # сохраняем сгенеренный ранее приватный ключ для раннера
-      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-      - chmod 644 ~/.ssh/known_hosts
-    script:
-      - scp ./backend/sausage-store-backend.service ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
-      - ssh ${DEV_USER}@${DEV_HOST}
-        "export "DEV_USER=${DEV_USER}";
-        export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-        export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-        export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-        /bin/bash -s " < ./backend/rollback.sh
-    when: manual
-    environment:
-        name: deploy
+#

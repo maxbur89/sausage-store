@@ -1,0 +1,23 @@
+[Unit]
+Description=sausage-store
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+RestartSec=2
+User=root
+
+WorkingDirectory=/home/admin/
+
+# Remove old containers
+ExecStartPre=/usr/bin/docker-compose down
+
+# Compose up
+ExecStart=/usr/bin/docker-compose --env-file /home/admin/.env_file up
+
+# Compose down
+ExecStop=/usr/bin/docker-compose down
+
+[Install]
+WantedBy=multi-user.target
