@@ -14,3 +14,12 @@ repos:
     #-   id: check-json
     -   id: check-merge-conflict
     -   id: detect-private-key
+
+-   repo: https://gitlab.com/devopshq/gitlab-ci-linter
+    rev: v1.0.2
+    hooks:
+    - id: gitlab-ci-linter
+      files: '.gitlab-ci.custom.yml'
+      args:
+        - '--filename'
+        - '.gitlab-ci.custom.yml'
