@@ -1,19 +1,6 @@
 version: '3.3'
 
 services:
- vault:
-  image: vault:1.9.3
-  restart: always
-  container_name: vault
-  ports:
-    - '8200:8200'
-  environment:
-    VAULT_DEV_ROOT_TOKEN_ID: "myroot"
-    VAULT_SERVER: "http://vault:8200"
-    VAULT_ADDR: "http://vault:8200"
-  networks:
-    - net-sausage-store
-
  frontend:
   image: gitlab.praktikum-services.ru:5050/00_burunov_m/sausage-store/sausage-store-frontend:latest
   restart: always
