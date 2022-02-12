@@ -39,3 +39,4 @@ services:
 networks:
  net-sausage-store:
   driver: bridge
+#
