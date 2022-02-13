@@ -1,0 +1,115 @@
+stages:
+    - lint
+    - build
+    - test
+    - release
+    - deploy
+
+include:
+    - template: Security/SAST.gitlab-ci.yml
+    - project: 'templates/ci'
+      file: 'DockerInDockerTemplate.yml'
+
+hadolint_dockerfile:
+  stage: lint
+  image: hadolint/hadolint:v2.8.0-alpine
+  services:
+      - docker:dind
+  script:
+      - hadolint --ignore DL3000 --ignore DL3045 --ignore SC2059 --ignore DL3025 backend-report/Dockerfile
+
+build-code-job:
+    stage: build
+    image: docker:stable-dind
+    services:
+      - docker:dind
+    before_script:
+      - until docker info; do sleep 1; done
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    script:
+      - cd backend-report
+      - docker build --cache-from ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:latest --build-arg APP_VERSION=${VERSION} -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_REF_SLUG} .
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_REF_SLUG}
+
+sast:
+  stage: test
+  variables:
+    SAST_DEFAULT_ANALYZERS: eslint,semgrep,spotbugs
+    SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
+#    SECURE_LOG_LEVEL: "debug"
+
+sonarqube-check-backend-report:
+    stage: test
+    image:
+      name: sonarsource/sonar-scanner-cli:latest
+      entrypoint: [""]
+    variables:
+      SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+      GIT_DEPTH: "0"
+    cache:
+      key: "${CI_JOB_NAME}"
+      paths:
+        - .sonar/cache
+    script:
+      - echo "SonarQube test backend-report for ${CI_PROJECT_DIR}"
+      - sonar-scanner
+        -Dsonar.qualitygate.wait=true
+        -Dsonar.projectKey=${SONAR_PROJECTKEY_BACKEND_REPORT}
+        -Dsonar.sources=.
+        -Dsonar.host.url=${SONAR_HOST_URL}
+        -Dsonar.login=${SONAR_LOGIN}
+        -Dsonar.projectBaseDir="${CI_PROJECT_DIR}"/backend-report
+        -Dsonar.java.binaries=**/*
+        -Dsonar.language=java
+    allow_failure: true
+    only:
+      - merge_requests
+      - master
+      - develop
+
+upload-release:
+    stage: release
+    image: docker:stable-dind
+    variables:
+        DOCKER_HOST: tcp://docker:2376
+        DOCKER_TLS_CERTDIR: "/certs"
+        DOCKER_TLS_VERIFY: 1
+        DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    services:
+      - docker:dind
+    before_script:
+      - until docker info; do sleep 1; done
+      - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    script:
+      - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_REF_SLUG}
+      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_REF_SLUG}
+                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:latest
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:latest
+    after_script:
+      - docker logout ${CI_REGISTRY}
+
+deploy:
+    stage: deploy
+    before_script:
+      # устанавливаем ssh-agent для удобства аутентификации по ssh (ssh-agent)
+      - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+      - eval $(ssh-agent -s)
+      # сохраняем сгенеренный ранее приватный ключ для раннера
+      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+      - mkdir -p ~/.ssh
+      - chmod 700 ~/.ssh
+      - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+      - chmod 644 ~/.ssh/known_hosts
+    script:
+      #- echo -e "SPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATASOURCE_PASSWORD=$DATA_SOURCE_PASS\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
+      - echo -e "SPRING_CLOUD_VAULT_TOKEN=$VAULT_TOKEN\nSPRING_CLOUD_VAULT_HOST=$VAULT_HOST\nSPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
+      - scp -r ./.env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
+      - ssh ${DEV_USER}@${DEV_HOST}
+        "export "VERSION=${VERSION}";
+        export "DEV_USER=${DEV_USER}";
+        export "REGISTRY_ACCESS_TOKEN=${REGISTRY_ACCESS_TOKEN}";
+        export "REGISTRY_USER=${REGISTRY_USER}";
+        /bin/bash -s " < ./frontend/deploy.sh
+    when: manual
+    environment:
+        name: deploy
