@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY . .
 RUN mvn package -DskipTests -Dversion.application=${APP_VERSION}
 
-FROM openjdk:16
+FROM 16-jdk-alpine3.13
 
 ARG APP_VERSION
 #Create app directory
