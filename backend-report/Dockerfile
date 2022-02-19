@@ -1,21 +1,23 @@
 FROM maven:3.8-openjdk-16 as builder
 #Create build directory
-ARG VERSION
+ARG APP_VERSION
 WORKDIR /usr/src/app
 COPY . .
-RUN mvn package -DskipTests -Dversion.application=${VERSION}
+RUN mvn package -DskipTests -Dversion.application=${APP_VERSION}
 
-FROM openjdk:16
+FROM openjdk:16-jdk-alpine3.13
 
-ARG VERSION
+ARG APP_VERSION
 #Create app directory
 WORKDIR /usr/src/app
+
+RUN apk --no-cache add curl=7.79.1-r0
 
 RUN curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o YandexInternalRootCA.crt && \
     keytool -importcert -file YandexInternalRootCA.crt -alias yandex -cacerts -storepass changeit -noprompt && \
     rm -f YandexInternalRootCA.crt
 
-COPY --from=builder /usr/src/app/target/sausage-store-report-${VERSION}.jar sausage-store-report.jar
+COPY --from=builder /usr/src/app/target/sausage-store-report-${APP_VERSION}.jar sausage-store-report.jar
 
 ENTRYPOINT ["java", "-jar", "./sausage-store-report.jar", "--service.port=8081"]
 EXPOSE 8081

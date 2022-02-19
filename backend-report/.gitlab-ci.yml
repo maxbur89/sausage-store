@@ -16,7 +16,7 @@ hadolint_dockerfile:
   services:
       - docker:dind
   script:
-      - hadolint --ignore DL3000 --ignore DL3045 frontend/Dockerfile
+      - hadolint --ignore DL3000 --ignore DL3045 --ignore SC2059 --ignore DL3025 backend-report/Dockerfile
 
 build-code-job:
     stage: build
@@ -27,19 +27,17 @@ build-code-job:
       - until docker info; do sleep 1; done
       - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
-      - cd frontend
-      - docker build --cache-from ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_SHORT_SHA} .
-      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_SHORT_SHA}
-    after_script:
-      - docker logout ${CI_REGISTRY}
+      - cd backend-report
+      - docker build --cache-from ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:latest --build-arg APP_VERSION=${VERSION} -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_SHORT_SHA} .
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_SHORT_SHA}
 
 sast:
   stage: test
   variables:
-    SAST_DEFAULT_ANALYZERS: eslint,semgrep,nodejs-scan
-    SAST_EXCLUDED_ANALYZERS: "spotbugs"
+    SAST_DEFAULT_ANALYZERS: eslint,semgrep,spotbugs
+    SAST_EXCLUDED_ANALYZERS: "nodejs-scan"
 
-sonarqube-check-frontend:
+sonarqube-check-backend-report:
     stage: test
     image:
       name: sonarsource/sonar-scanner-cli:latest
@@ -52,14 +50,16 @@ sonarqube-check-frontend:
       paths:
         - .sonar/cache
     script:
-      - echo "SonarQube test frontend for ${CI_PROJECT_DIR}"
+      - echo "SonarQube test backend-report for ${CI_PROJECT_DIR}"
       - sonar-scanner
         -Dsonar.qualitygate.wait=true
-        -Dsonar.projectKey=${SONAR_PROJECTKEY_BACKEND}
+        -Dsonar.projectKey=${SONAR_PROJECTKEY_BACKEND_REPORT}
         -Dsonar.sources=.
         -Dsonar.host.url=${SONAR_HOST_URL}
         -Dsonar.login=${SONAR_LOGIN}
-        -Dsonar.projectBaseDir="${CI_PROJECT_DIR}"/frontend
+        -Dsonar.projectBaseDir="${CI_PROJECT_DIR}"/backend-report
+        -Dsonar.java.binaries=**/*
+        -Dsonar.language=java
     allow_failure: true
     only:
       - merge_requests
@@ -75,10 +75,10 @@ upload-release:
       - until docker info; do sleep 1; done
       - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     script:
-      - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_SHORT_SHA}
-      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:${CI_COMMIT_SHORT_SHA}
-                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
-      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-frontend:latest
+      - docker pull ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_SHORT_SHA}
+      - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:${CI_COMMIT_SHORT_SHA}
+                   ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:latest
+      - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}-backend-report:latest
     after_script:
       - docker logout ${CI_REGISTRY}
 
@@ -95,7 +95,7 @@ deploy:
       - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
       - chmod 644 ~/.ssh/known_hosts
     script:
-      - echo -e "SPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATASOURCE_PASSWORD=$DATA_SOURCE_PASS\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
+      - echo -e "SPRING_CLOUD_VAULT_TOKEN=$VAULT_TOKEN\nSPRING_CLOUD_VAULT_HOST=$VAULT_HOST\nSPRING_DATASOURCE_URL=$DATA_SOURCE_CONNECT\nSPRING_DATASOURCE_USERNAME=$DATA_SOURCE_NAME\nSPRING_DATA_MONGODB_URI=$MONGO_CONNECT\n" > .env_file
       - scp -r ./.env_file ./sausage-store.service ./docker-compose.yml ${DEV_USER}@${DEV_HOST}:/home/${DEV_USER}/
       - ssh ${DEV_USER}@${DEV_HOST}
         "export "VERSION=${VERSION}";
