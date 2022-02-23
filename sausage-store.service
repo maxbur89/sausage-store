@@ -14,7 +14,7 @@ WorkingDirectory=/home/admin/
 ExecStartPre=/usr/bin/docker-compose down
 
 # Compose up
-ExecStart=/usr/bin/docker-compose --env-file /home/admin/.env_file up
+ExecStart=/usr/bin/docker-compose --env-file /home/admin/.env_file up --scale backend=3
 
 # Compose down
 ExecStop=/usr/bin/docker-compose down
