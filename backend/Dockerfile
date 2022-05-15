@@ -25,6 +25,10 @@ RUN printf "java -jar /backend/sausage-store/sausage-store-${APP_VERSION}.jar" \
             && groupadd --gid 1002 admin \
             && useradd --uid 1001 --gid 1002 admin
 
+RUN curl https://storage.yandexcloud.net/cloud-certs/CA.pem -o YandexInternalRootCA.crt && \
+    keytool -importcert -file YandexInternalRootCA.crt -alias yandex -cacerts -storepass changeit -noprompt && \
+    rm -f YandexInternalRootCA.crt
+
 COPY --chown=admin:admin --from=builder /backend/target/sausage-store-$APP_VERSION.jar /backend/sausage-store/sausage-store-$APP_VERSION.jar
 
 USER admin

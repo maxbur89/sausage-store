@@ -7,9 +7,9 @@ RUN apk add --no-cache npm==8.1.3-r0 \
 COPY ./src ./src
 RUN npm run build
 
-#  Balancing
-FROM nginxproxy/nginx-proxy:0.10.0
+
+FROM nginx:1.21.6-alpine
 
 COPY --from=builder /usr/src/app/dist/frontend /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
